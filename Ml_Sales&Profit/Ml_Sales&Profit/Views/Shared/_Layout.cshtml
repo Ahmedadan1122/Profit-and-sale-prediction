@@ -1,0 +1,159 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sidebar Menu</title>
+
+    <link rel='stylesheet' href='https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css'>
+    <link rel='stylesheet' href='https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&amp;display=swap'>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <style>
+        /* Hide all role-controlled menu items initially */
+        #dashboardMenu,
+        #uploadMenu,
+        #rolesMenu,
+        #usersMenu,
+        #predicthistory,
+        #predicthistoryb,
+        #predictMenu {
+            display: none ;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- partial:index.partial.html -->
+    <nav class="sidebar close">
+        <header>
+            <div class="image-text">
+                <span class="image">
+                    <img src="~/logo.jpeg" alt="">
+                </span>
+
+                <div class="text logo-text" >
+                    <span class="name">Sales And Profit </span>
+                    <span class="profession">Machine Learning</span>
+                </div>
+            </div>
+
+            <i class='bx bx-chevron-right toggle' style="color:white;"></i>
+        </header>
+
+        <div class="menu-bar">
+            <div class="menu">
+
+
+
+                <ul class="menu-links" style="margin-left:-30px;">
+                  @*   <li class="nav-link" id="dashboardMenu">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="home">
+                            <i class='bx bx-home-alt icon'></i>
+                            <span class="text nav-text">Dashboard</span>
+                        </a>
+                    </li> *@
+
+                    <li class="nav-link" id="uploadMenu">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="upload">
+                                               <i class='bx bx-cloud-upload icon'></i>
+                                               <span class="text nav-text">Upload</span>
+                                           </a>
+                                       </li>
+
+                    <li class="nav-link" id="rolesMenu">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="roles">
+                                               <i class='bx bx-user-check icon'></i>
+                                               <span class="text nav-text">Roles</span>
+                                           </a>
+                                       </li>
+
+                    <li class="nav-link" id="usersMenu">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="users">
+                                               <i class='bx bx-user-circle icon'></i>
+                                               <span class="text nav-text">User</span>
+                                           </a>
+                                       </li>
+
+                    <li class="nav-link" id="predictMenu">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="predict">
+                                               <i class='bx bx-line-chart icon'></i>
+                                               <span class="text nav-text">Prediction</span>
+                                           </a>
+                                       </li>
+
+
+                    <li class="nav-link" id="predicthistory">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Allpredict">
+                            <i class='bx bx-history icon'></i>
+                            <span class="text nav-text">All Predictions</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-link" id="predicthistoryb">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="predictbyuser">
+                            <i class='bx bx-history icon'></i>
+                            <span class="text nav-text">Prediction Histrory</span>
+                        </a>
+                    </li>
+
+                  
+
+                </ul>
+            </div>
+
+            <div class="bottom-content">
+                <li class="mode">
+                    <a href="#" id="logoutBtn">
+                        <i class='bx bx-log-out icon'></i>
+                        <span class="text nav-text">Logout</span>
+                    </a>
+                </li>
+            </div>
+
+        </div>
+
+    </nav>
+
+    <section class="home">
+        <div class="text"> @RenderBody()</div>
+    </section>
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch('/Account/GetSession')
+                .then(response => response.json())
+                .then(data => {
+                    const role = data.role;
+
+                    if (!role) {
+                        window.location.href = '/home/home'; // not logged in
+                        return;
+                    }
+
+                    if (role === 'Admin') {
+                        ["dashboardMenu", "uploadMenu", "rolesMenu", "usersMenu", "predictMenu", "predicthistory"].forEach(id => {
+                            const el = document.getElementById(id);
+                            if (el) el.style.display = "block";
+                        });
+                    } else  {
+                        ["predictMenu", "predicthistoryb"].forEach(id => {
+                            const el = document.getElementById(id);
+                            if (el) el.style.display = "block";
+                        });
+                    }
+                });
+        });
+
+        // Logout button clears session
+        document.getElementById("logoutBtn").addEventListener("click", function (e) {
+            e.preventDefault();
+            fetch('/Account/Logout', { method: 'POST' })
+                .then(() => window.location.href = '/home/home');
+        });
+    </script>
+
+    <!-- partial -->
+       <script src="~/js/site.js" asp-append-version="true"></script>
+
+</body>
+</html>

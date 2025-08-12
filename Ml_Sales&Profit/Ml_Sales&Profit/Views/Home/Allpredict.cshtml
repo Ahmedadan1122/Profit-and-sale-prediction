@@ -1,0 +1,135 @@
+﻿<!-- Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- Bootstrap Icons -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+<!-- Font Awesome for modal icons -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+
+<!-- jQuery, SweetAlert2, DataTables CSS & JS -->
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+<div class="container py-4">
+    <div class="bg-white p-4 rounded shadow-sm">
+
+        <h3 class="mb-4">All Predictions</h3>
+
+        <div class="table-responsive">
+            <table id="userTable" class="table table-bordered bg-white">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Unit sold</th>
+                        <th>COGS</th>
+                        <th>Year</th>
+                        <th>Month</th>
+                        <th>Sales price</th>
+                        <th>Predict Sales</th>
+                        <th>Predict Profit</th>
+                        <th>Create Date</th>
+                        <th>Actions</th> <!-- New action column -->
+                    </tr>
+                </thead>
+                <tbody id="userTableBody"></tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="salesProfitModal" tabindex="-1" aria-labelledby="salesProfitModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="salesProfitModalLabel">
+                    <i class="fas fa-chart-line me-2"></i>Sales & Profit Overview
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="summary-box mb-3">
+                    <i class="fas fa-dollar-sign text-success fa-2x mb-1"></i>
+                    <h4>Profit: <span id="profitAmount" class="fw-bold text-dark">000000</span></h4>
+                </div>
+                <div class="summary-box">
+                    <i class="fas fa-coins text-warning fa-2x mb-1"></i>
+                    <h4>Sales: <span id="salesAmount" class="fw-bold text-dark">00000000000</span></h4>
+                </div>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const userApi = "http://127.0.0.1:8000/admin/predictions";
+
+    $(document).ready(() => {
+      loadUsers();
+    });
+
+    function loadUsers() {
+      $.get(userApi, users => {
+        if ($.fn.DataTable.isDataTable("#userTable")) {
+          $("#userTable").DataTable().clear().destroy();
+        }
+
+        const body = $("#userTableBody");
+        body.empty();
+
+        users.forEach(user => {
+          body.append(`
+            <tr>
+              <td>${user.id}</td>
+              <td>${user.units_sold}</td>
+              <td>${user.cogs}</td>
+              <td>${user.year}</td>
+              <td>${user.month}</td>
+              <td>${user.sale_price}</td>
+              <td>${user.predicted_sales}</td>
+              <td>${user.predicted_profit}</td>
+              <td>${user.created_at}</td>
+              <td>
+                <button class="btn btn-sm btn-primary"
+                        onclick="showSalesProfitModal(${user.predicted_profit}, ${user.predicted_sales})">
+                  <i class="bi bi-eye"></i> View
+                </button>
+              </td>
+            </tr>
+          `);
+        });
+
+        $("#userTable").DataTable();
+      });
+    }
+
+    // Show modal and fill profit & sales
+    function showSalesProfitModal(profit, sales) {
+      $("#profitAmount").text(profit.toLocaleString());
+      $("#salesAmount").text(sales.toLocaleString());
+      const modal = new bootstrap.Modal(document.getElementById('salesProfitModal'));
+      modal.show();
+    }
+
+    function toast(msg, icon = "success") {
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon,
+        title: msg,
+        timer: 2000,
+        showConfirmButton: false
+      });
+    }
+</script>
+
+<!-- Bootstrap JS bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

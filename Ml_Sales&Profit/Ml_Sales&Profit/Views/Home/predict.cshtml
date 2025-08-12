@@ -1,0 +1,536 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Profit & Sales Prediction</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <style>
+
+
+        .container {
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .form-section {
+            padding: 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .form-label {
+            font-weight: 700;
+            color: #6c757d;
+        }
+
+        .btn-primary {
+            background: #17a2b8;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+            .btn-primary:hover {
+                background: #138496;
+                transform: scale(1.05);
+            }
+
+        .pdf-container {
+            padding: 20px 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        .btn-success {
+            background: #28a745;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+            .btn-success:hover {
+                background: #218838;
+                transform: scale(1.05);
+            }
+
+        .summary-box {
+            padding: 15px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            margin-bottom: 10px;
+        }
+
+        .pdf-preview {
+            max-height: 400px;
+            overflow-y: auto;
+            y border-radius: 5px;
+            padding: 15px;
+            background: white;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        /* New styles for smaller fonts & padding inside the PDF content */
+        .pdf-content {
+            padding: 15px 20px;
+            font-size: 10px;
+            line-height: 1.2;
+            color: #333;
+        }
+
+            .pdf-content h2 {
+                font-size: 14px;
+                margin-bottom: 5px;
+            }
+
+            .pdf-content h3 {
+                font-size: 12px;
+                margin-bottom: 4px;
+            }
+
+            .pdf-content h4 {
+                font-size: 11px;
+                margin-bottom: 4px;
+            }
+
+            .pdf-content table {
+                font-size: 10px;
+            }
+
+            .pdf-content p {
+                font-size: 10px;
+            }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-section">
+            <h3 class="text-center mb-4">Profit & Sales Prediction</h3>
+            <form id="predictForm" class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Year</label>
+                    <input type="number" class="form-control" name="year" min="2000" max="2100" required />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Month</label>
+                    <input type="number" class="form-control" name="month" min="1" max="12" required />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Units Sold</label>
+                    <input type="number" class="form-control" name="units_sold" min="0" required />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Sale Price</label>
+                    <input type="number" class="form-control" name="sale_price" min="0" step="0.01" required />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">COGS</label>
+                    <input type="number" class="form-control" name="cogs" min="0" step="0.01" required />
+                </div>
+
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-bar-chart-line-fill me-2"></i>Predict
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="pdf-container">
+            <h5 class="text-center mb-3">Professional PDF Report Preview</h5>
+            <div id="pdfPreview" class="pdf-preview"></div>
+            <button class="btn btn-success w-100 mt-2" onclick="downloadPDF()">
+                <i class="bi bi-download me-2"></i>Download Professional PDF Report
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="salesProfitModal" tabindex="-1" aria-labelledby="salesProfitModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content shadow-lg">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="salesProfitModalLabel">
+                        <i class="fas fa-chart-line me-2"></i>Sales & Profit Overview
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <div class="summary-box mb-3">
+                        <i class="fas fa-dollar-sign text-success fa-2x mb-1"></i>
+                        <h4>Profit: <span id="profitAmount" class="fw-bold text-dark">000000</span></h4>
+                    </div>
+                    <div class="summary-box">
+                        <i class="fas fa-coins text-warning fa-2x mb-1"></i>
+                        <h4>Sales: <span id="salesAmount" class="fw-bold text-dark">00000000000</span></h4>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+            let currentPredictionData = null
+        let sessionData = null
+        const Swal = window.Swal // Declare Swal variable
+        const $ = window.$ // Declare $ variable
+        const bootstrap = window.bootstrap // Declare bootstrap variable
+        const html2canvas = window.html2canvas // Declare html2canvas variable
+        const jspdf = window.jspdf // Declare jspdf variable
+
+        function showLoader() {
+          Swal.fire({
+            title: "Loading...",
+            allowOutsideClick: false,
+            didOpen: () => {
+              Swal.showLoading()
+            },
+          })
+        }
+
+        function hideLoader() {
+          Swal.close()
+        }
+
+        function showSalesProfitModal(res) {
+          const profit = res.predicted_profit || 0
+          const sales = res.predicted_sales || 0
+
+          $("#profitAmount").text(profit.toLocaleString())
+          $("#salesAmount").text(sales.toLocaleString())
+
+          const modal = new bootstrap.Modal(document.getElementById("salesProfitModal"))
+          modal.show()
+        }
+
+        function getMonthName(monthNumber) {
+          const months = [
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December",
+          ]
+          return months[monthNumber - 1] || "Unknown"
+        }
+
+        function calculateMetrics(input, res) {
+          const profit = res.predicted_profit || 0
+          const sales = res.predicted_sales || 0
+          const profitMargin = sales > 0 ? (profit / sales) * 100 : 0
+          const unitProfit = input.units_sold > 0 ? profit / input.units_sold : 0
+          const totalRevenue = input.units_sold * input.sale_price
+          const totalCosts = input.units_sold * input.cogs
+          return {
+            profit,
+            sales,
+            profitMargin,
+            unitProfit,
+            totalRevenue,
+            totalCosts,
+            roi: totalCosts > 0 ? (profit / totalCosts) * 100 : 0,
+          }
+        }
+
+        // Function to fetch and store session data
+        function fetchSessionData() {
+          return new Promise((resolve, reject) => {
+            $.ajax({
+              url: "/Account/GetSession",
+              method: "GET",
+              timeout: 5000,
+              success: (session) => {
+                if (!session || !session.id) {
+                  reject("Session expired. Please login again.")
+                  return
+                }
+                sessionData = session
+                resolve(session)
+              },
+              error: () => {
+                reject("Failed to fetch session.")
+              },
+            })
+          })
+        }
+
+        $("#predictForm").submit(function (e) {
+          e.preventDefault()
+
+          const formData = new FormData(this)
+          const year = +formData.get("year")
+          const month = +formData.get("month")
+          const units_sold = +formData.get("units_sold")
+          const sale_price = +formData.get("sale_price")
+          const cogs = +formData.get("cogs")
+
+          if (isNaN(year) || isNaN(month) || isNaN(units_sold) || isNaN(sale_price) || isNaN(cogs)) {
+            Swal.fire("Error", "Please enter valid numeric values.", "error")
+            return
+          }
+          if (year < 2000 || year > 2100 || month < 1 || month > 12 || units_sold < 0 || sale_price < 0 || cogs < 0) {
+            Swal.fire("Error", "Please enter values within valid ranges.", "error")
+            return
+          }
+
+          showLoader()
+
+          // Fetch session data first
+          fetchSessionData()
+            .then((session) => {
+              const data = {
+                year,
+                month,
+                units_sold,
+                sale_price,
+                cogs,
+                username: session.name, // Read from session
+                email: session.email, // Read from session
+                user_id: +session.id,
+              }
+
+              $.ajax({
+                url: "http://127.0.0.1:8000/predict/predict",
+                method: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(data),
+                success: (res) => {
+                  currentPredictionData = { input: data, result: res }
+                  showSalesProfitModal(res)
+                  setTimeout(() => updatePDFPreview(data, res), 100)
+                  hideLoader()
+                  Swal.fire({
+                    toast: true,
+                    icon: "success",
+                    title: "Prediction Success",
+                    timer: 2000,
+                    position: "top-end",
+                    showConfirmButton: false,
+                  })
+                },
+                error: () => {
+                  Swal.fire("Error", "Prediction API failed. Showing estimate.", "warning")
+                  const res = {
+                    predicted_sales: units_sold * sale_price,
+                    predicted_profit: units_sold * (sale_price - cogs),
+                  }
+                  currentPredictionData = { input: data, result: res }
+                  showSalesProfitModal(res)
+                  setTimeout(() => updatePDFPreview(data, res), 100)
+                  hideLoader()
+                },
+              })
+            })
+            .catch((error) => {
+              Swal.fire("Error", error, "error")
+              hideLoader()
+            })
+        })
+
+        function updatePDFPreview(input, res) {
+          // Fetch fresh session data for PDF preview
+          fetchSessionData()
+            .then((session) => {
+              const dateStr = new Date().toLocaleDateString()
+              const timeStr = new Date().toLocaleTimeString()
+              const metrics = calculateMetrics(input, res)
+
+              document.getElementById("pdfPreview").innerHTML = `
+        <div class="pdf-content">
+                              <div style="text-align: center; margin-bottom: 20px;">
+                                  <img src="/logo.jpeg" alt="Company Logo" style="max-width: 80px; margin-bottom: 10px;"><br/>
+                                  <h2 style="margin: 0; color: #2c3e50;">BUSINESS INTELLIGENCE REPORT</h2>
+                                  <h3 style="margin: 5px 0; color: #34495e;">Profit & Sales Prediction Analysis</h3>
+                                  <p style="margin: 5px 0; color: #7f8c8d;">Generated: ${dateStr} at ${timeStr}</p>
+                                  <hr style="border: 1px solid #bdc3c7;">
+                              </div>
+
+                              <div style="margin-bottom: 20px;">
+                                  <h4 style="color: #2980b9; border-bottom: 2px solid #3498db; padding-bottom: 5px;">USER INFORMATION</h4>
+                                  <table style="width: 100%; border-collapse: collapse; margin: 10px 0;">
+                                      <tr style="background-color: #ecf0f1;">
+                                          <td style="padding: 8px; border: 1px solid #bdc3c7; font-weight: bold;">Username</td>
+                                          <td style="padding: 8px; border: 1px solid #bdc3c7;">${session.name}</td>
+                                      </tr>
+                                      <tr>
+                                          <td style="padding: 8px; border: 1px solid #bdc3c7; font-weight: bold;">Email</td>
+                                          <td style="padding: 8px; border: 1px solid #bdc3c7;">${session.email}</td>
+                                      </tr>
+                                  </table>
+                              </div>
+
+                              <div style="margin-bottom: 20px;">
+                                  <h4 style="color: #2980b9; border-bottom: 2px solid #3498db; padding-bottom: 5px;">EXECUTIVE SUMMARY</h4>
+                                  <p style="text-align: justify; margin: 10px 0;">
+                                      This comprehensive analysis provides detailed insights into the predicted financial performance
+                                      for ${getMonthName(input.month)} ${input.year}. Based on the input parameters and advanced
+                                      predictive modeling, we have generated accurate forecasts for sales revenue and profit margins.
+                                  </p>
+                              </div>
+
+                              <div style="margin-bottom: 20px;">
+                                  <h4 style="color: #2980b9; border-bottom: 2px solid #3498db; padding-bottom: 5px;">INPUT PARAMETERS</h4>
+                                  <table style="width: 100%; border-collapse: collapse; margin: 10px 0;">
+                                      <tr style="background-color: #ecf0f1;">
+                                          <td style="padding: 8px; border: 1px solid #bdc3c7; font-weight: bold;">Reporting Period</td>
+                                          <td style="padding: 8px; border: 1px solid #bdc3c7;">${getMonthName(input.month)} ${input.year}</td>
+                                      </tr>
+                                      <tr>
+                                          <td style="padding: 8px; border: 1px solid #bdc3c7; font-weight: bold;">Units Sold</td>
+                                          <td style="padding: 8px; border: 1px solid #bdc3c7;">${input.units_sold.toLocaleString()} units</td>
+                                      </tr>
+                                      <tr style="background-color: #ecf0f1;">
+                                          <td style="padding: 8px; border: 1px solid #bdc3c7; font-weight: bold;">Sale Price per Unit</td>
+                                          <td style="padding: 8px; border: 1px solid #bdc3c7;">$${input.sale_price.toFixed(2)}</td>
+                                      </tr>
+                                      <tr>
+                                          <td style="padding: 8px; border: 1px solid #bdc3c7; font-weight: bold;">Cost of Goods Sold (COGS)</td>
+                                          <td style="padding: 8px; border: 1px solid #bdc3c7;">$${input.cogs.toFixed(2)} per unit</td>
+                                      </tr>
+                                  </table>
+                              </div>
+
+                              <div style="margin-bottom: 20px;">
+                                  <h4 style="color: #27ae60; border-bottom: 2px solid #2ecc71; padding-bottom: 5px;">FINANCIAL PREDICTIONS</h4>
+                                  <div style="display: flex; justify-content: space-between; margin: 15px 0;">
+                                      <div style="background-color: #d5f4e6; padding: 15px; border-radius: 8px; width: 48%; text-align: center;">
+                                          <h3 style="margin: 0; color: #27ae60;">PREDICTED SALES</h3>
+                                          <h2 style="margin: 5px 0; color: #1e8449;">$${metrics.sales.toLocaleString()}</h2>
+                                      </div>
+                                      <div style="background-color: #fdeaa7; padding: 15px; border-radius: 8px; width: 48%; text-align: center;">
+                                          <h3 style="margin: 0; color: #f39c12;">PREDICTED PROFIT</h3>
+                                          <h2 style="margin: 5px 0; color: #d68910;">$${metrics.profit.toLocaleString()}</h2>
+                                      </div>
+                                  <div>
+              </div>
+              </div>
+              `
+
+            })
+            .catch((error) => {
+              console.error("Failed to fetch session for PDF preview:", error)
+              // Fallback to using input data if session fetch fails
+              const dateStr = new Date().toLocaleDateString()
+              const timeStr = new Date().toLocaleTimeString()
+              const metrics = calculateMetrics(input, res)
+
+              document.getElementById("pdfPreview").innerHTML = `
+                        <div class="pdf-content">
+                            <div style="text-align: center; margin-bottom: 20px;">
+                                <img src="/logo.jpeg" alt="Company Logo" style="max-width: 80px; margin-bottom: 10px;"><br/>
+                                <h2 style="margin: 0; color: #2c3e50;">BUSINESS INTELLIGENCE REPORT</h2>
+                                <h3 style="margin: 5px 0; color: #34495e;">Profit & Sales Prediction Analysis</h3>
+                                <p style="margin: 5px 0; color: #7f8c8d;">Generated: ${dateStr} at ${timeStr}</p>
+                                <hr style="border: 1px solid #bdc3c7;">
+                            </div>
+                            <div style="margin-bottom: 20px;">
+                                <h4 style="color: #e74c3c;">Session Error</h4>
+                                <p>Unable to fetch current session data. Please refresh and try again.</p>
+                            </div>
+                        </div>
+                    `
+            })
+        }
+
+        async function downloadPDF() {
+          if (!currentPredictionData) {
+            Swal.fire("Error", "Please generate a prediction first.", "error")
+            return
+          }
+
+          const element = document.getElementById("pdfPreview")
+
+          const originalMaxHeight = element.style.maxHeight
+          const originalOverflow = element.style.overflow
+          element.style.maxHeight = "none"
+          element.style.overflow = "visible"
+
+          Swal.fire({
+            title: "Generating PDF...",
+            allowOutsideClick: false,
+            didOpen: () => Swal.showLoading(),
+          })
+
+          try {
+            const canvas = await html2canvas(element, {
+              scale: 2,
+              useCORS: true,
+              windowWidth: element.scrollWidth,
+              windowHeight: element.scrollHeight,
+            })
+
+            const imgData = canvas.toDataURL("image/png")
+            const pdf = new jspdf.jsPDF("p", "mm", "a4")
+
+            const pdfWidth = pdf.internal.pageSize.getWidth()
+            const pdfHeight = pdf.internal.pageSize.getHeight()
+
+            const padding = 10
+            const availableWidth = pdfWidth - padding * 2
+            const availableHeight = pdfHeight - padding * 2
+
+            const imgWidth = canvas.width
+            const imgHeight = canvas.height
+
+            const ratio = Math.min(availableWidth / imgWidth, availableHeight / imgHeight)
+
+            const imgPDFWidth = imgWidth * ratio
+            const imgPDFHeight = imgHeight * ratio
+
+            const x = (pdfWidth - imgPDFWidth) / 2
+            const y = (pdfHeight - imgPDFHeight) / 2
+
+            pdf.addImage(imgData, "PNG", x, y, imgPDFWidth, imgPDFHeight)
+
+            pdf.save("BI_Report.pdf")
+          } catch (err) {
+            Swal.fire("Error", "Failed to generate PDF: " + err.message, "error")
+          } finally {
+            element.style.maxHeight = originalMaxHeight
+            element.style.overflow = originalOverflow
+            Swal.close()
+          }
+        }
+
+        // Initialize session data on page load
+        $(document).ready(() => {
+          fetchSessionData()
+            .then((session) => {
+              console.log("Session loaded:", session)
+            })
+            .catch((error) => {
+              console.warn("Failed to load session on page load:", error)
+            })
+        })
+
+    </script>
+</body>
+</html>
+
+

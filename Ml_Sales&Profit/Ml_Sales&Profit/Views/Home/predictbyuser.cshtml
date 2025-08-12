@@ -1,0 +1,290 @@
+﻿<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- DataTables CSS & JS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+<!-- PDF dependencies -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<div class="container py-4">
+    <div class="bg-white p-4 rounded shadow-sm">
+        <h3 class="mb-4">Predictions</h3>
+
+        <div class="table-responsive">
+            <table id="userTable" class="table table-bordered bg-white">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Unit sold</th>
+                        <th>COGS</th>
+                        <th>Year</th>
+                        <th>Month</th>
+                        <th>Sales price</th>
+                        <th>Predict Sales</th>
+                        <th>Predict Profit</th>
+                        <th>Create Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="userTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Hidden container for PDF preview -->
+<div id="pdfPreview" style="display:none;"></div>
+
+<script>
+    let currentPredictionData = null;
+
+    // Helper to get month name from number
+    function getMonthName(monthNum) {
+      const date = new Date();
+      date.setMonth(monthNum - 1);
+      return date.toLocaleString('default', { month: 'long' });
+    }
+
+    // Example calculateMetrics function (adjust if needed)
+    function calculateMetrics(input, res) {
+      return {
+        sales: res.predicted_sales || 0,
+        profit: res.predicted_profit || 0,
+      };
+    }
+
+    $(document).ready(() => {
+      $.get("/Account/GetSession")
+        .done(session => {
+          if (!session || !session.id) {
+            window.location.href = "/Home/home";
+            return;
+          }
+          const userApi = `http://127.0.0.1:8000/admin/predictions/user/${session.id}`;
+          loadUsers(userApi);
+        })
+        .fail(() => {
+          window.location.href = "/Home/home";
+        });
+    });
+
+    function loadUsers(userApi) {
+      $.get(userApi, users => {
+        if ($.fn.DataTable.isDataTable("#userTable")) {
+          $("#userTable").DataTable().clear().destroy();
+        }
+
+        const body = $("#userTableBody");
+        body.empty();
+
+        users.forEach((user, index) => {
+          const input = {
+            units_sold: user.units_sold,
+            cogs: user.cogs,
+            year: user.year,
+            month: user.month,
+            sale_price: user.sale_price,
+          };
+          const res = {
+            predicted_sales: user.predicted_sales,
+            predicted_profit: user.predicted_profit,
+          };
+
+          const inputStr = encodeURIComponent(JSON.stringify(input));
+          const resStr = encodeURIComponent(JSON.stringify(res));
+
+          body.append(`
+            <tr>
+              <td>${index + 1}</td>
+              <td>${user.units_sold}</td>
+              <td>${user.cogs}</td>
+              <td>${user.year}</td>
+              <td>${user.month}</td>
+              <td>${user.sale_price}</td>
+              <td>${user.predicted_sales}</td>
+              <td>${user.predicted_profit}</td>
+              <td>${user.created_at}</td>
+              <td>
+                <button class="btn btn-sm btn-outline-primary"
+                  onclick="handlePDF('${inputStr}', '${resStr}')">
+                  <i class="bi bi-download"></i> PDF
+                </button>
+              </td>
+            </tr>
+          `);
+        });
+
+        $("#userTable").DataTable();
+      });
+    }
+
+    async function fetchSessionData() {
+      return new Promise((resolve, reject) => {
+        $.ajax({
+          url: "/Account/GetSession",
+          method: "GET",
+          timeout: 5000,
+          success: (session) => {
+            if (!session || !session.id) {
+              reject("Session expired. Please login again.");
+              return;
+            }
+            resolve(session);
+          },
+          error: () => reject("Failed to fetch session."),
+        });
+      });
+    }
+
+    function updatePDFPreview(input, res) {
+      fetchSessionData()
+        .then(session => {
+          const dateStr = new Date().toLocaleDateString();
+          const timeStr = new Date().toLocaleTimeString();
+          const metrics = calculateMetrics(input, res);
+
+          document.getElementById("pdfPreview").innerHTML = `
+               <div class="pdf-content" style="position: relative; background: linear-gradient(135deg, #26A69A 0%, #FF7043 100%); border: 12px solid #FFD700; padding: 25px; text-align: center; font-family: 'Arial', sans-serif; color: #FFFFFF;">
+                  <div style="background: rgba(255, 255, 255, 0.1); border: 5px solid #FFD700; padding: 20px; border-radius: 10px;">
+                    <div style="font-size: 40px; color: #FFD700;">&#9733;</div> <!-- Star icon -->
+                    <h2 style="color: #FFD700; font-size: 36px; margin: 0 0 10px; font-weight: bold;">Sales And Profit Inc.</h2>
+                    <h3 style="color: #FFFFFF; font-size: 28px; margin: 0 0 15px;">Certificate of Success</h3>
+                    <p style="color: #FFFFFF; font-size: 16px; margin: 10px 0;">This certificate is proudly awarded to</p>
+                    <h4 style="color: #FFD700; font-size: 22px; font-style: italic;">${session.name || 'Your Name Here'}</h4>
+                    <p style="color: #FFFFFF; font-size: 14px; margin: 10px 0;">For exceptional prediction analysis on ${getMonthName(input.month)} ${input.year}</p>
+                    <p style="color: #FFFFFF; font-size: 16px; margin: 10px 0; font-weight: bold;">Prediction Highlights:</p>
+                    <p style="color: #FFFFFF; font-size: 14px; margin: 10px 0;">Predicted Sales: <span style="color: #FFD700;">$${metrics.sales.toLocaleString()}</span></p>
+                    <p style="color: #FFFFFF; font-size: 14px; margin: 10px 0;">Predicted Profit: <span style="color: #FFD700;">$${metrics.profit.toLocaleString()}</span></p>
+                    <p style="color: #FFFFFF; font-size: 12px; margin: 10px 0;">Issued: ${dateStr} at ${timeStr}</p>
+                    <p style="color: #FFFFFF; font-size: 14px; margin: 10px 0;">This achievement reflects your dedication and skill in analyzing market trends and forecasting financial outcomes with precision.</p>
+                    <p style="color: #FFFFFF; font-size: 14px; margin: 10px 0;">Congratulations on this remarkable accomplishment! Your efforts have set a new standard of excellence.</p>
+                    <p style="color: #FFFFFF; font-size: 14px; margin: 10px 0; font-style: italic;">We are confident that your future contributions will continue to inspire and lead the way forward.</p>
+                    <p style="color: #FFFFFF; font-size: 14px; margin: 10px 0;">Keep shining and pushing the boundaries of success!</p>
+                    <p style="color: #FFFFFF; font-size: 14px; margin: 10px 0; font-style: italic;">Best wishes from the Sales And Profit Inc. team,</p>
+                    <div style="position: absolute; top: 20px; left: 50%; transform: translateX(-50%);">
+                      <div style="width: 80px; height: 80px; background: #FFD700; border: 3px solid #26A69A; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px; color: #26A69A;">&#127942;</div> <!-- Trophy icon -->
+                    </div>
+                    <div style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);">
+
+                    </div>
+                  </div>
+                </div>
+          `;
+        })
+        .catch(error => {
+          const dateStr = new Date().toLocaleDateString();
+          const timeStr = new Date().toLocaleTimeString();
+
+          document.getElementById("pdfPreview").innerHTML = `
+               <div class="pdf-content" style="position: relative; background: linear-gradient(135deg, #26A69A 0%, #FF7043 100%); border: 12px solid #FFD700; padding: 25px; text-align: center; font-family: 'Arial', sans-serif; color: #FFFFFF;">
+                  <div style="background: rgba(255, 255, 255, 0.1); border: 5px solid #FFD700; padding: 20px; border-radius: 10px;">
+                    <div style="font-size: 40px; color: #FFD700;">&#9733;</div> <!-- Star icon -->
+                    <h2 style="color: #FFD700; font-size: 36px; margin: 0 0 10px; font-weight: bold;">Sales And Profit Inc.</h2>
+                    <h3 style="color: #FFFFFF; font-size: 28px; margin: 0 0 15px;">Certificate of Success</h3>
+                    <p style="color: #FFFFFF; font-size: 16px; margin: 10px 0;">This certificate is proudly awarded to</p>
+                    <h4 style="color: #FFD700; font-size: 22px; font-style: italic;">${session.name || 'Your Name Here'}</h4>
+                    <p style="color: #FFFFFF; font-size: 14px; margin: 10px 0;">For exceptional prediction analysis on ${getMonthName(input.month)} ${input.year}</p>
+                    <p style="color: #FFFFFF; font-size: 16px; margin: 10px 0; font-weight: bold;">Prediction Highlights:</p>
+                    <p style="color: #FFFFFF; font-size: 14px; margin: 10px 0;">Predicted Sales: <span style="color: #FFD700;">$${metrics.sales.toLocaleString()}</span></p>
+                    <p style="color: #FFFFFF; font-size: 14px; margin: 10px 0;">Predicted Profit: <span style="color: #FFD700;">$${metrics.profit.toLocaleString()}</span></p>
+                    <p style="color: #FFFFFF; font-size: 12px; margin: 10px 0;">Issued: ${dateStr} at ${timeStr}</p>
+                    <p style="color: #FFFFFF; font-size: 14px; margin: 10px 0;">This achievement reflects your dedication and skill in analyzing market trends and forecasting financial outcomes with precision.</p>
+                    <p style="color: #FFFFFF; font-size: 14px; margin: 10px 0;">Congratulations on this remarkable accomplishment! Your efforts have set a new standard of excellence.</p>
+                    <p style="color: #FFFFFF; font-size: 14px; margin: 10px 0; font-style: italic;">We are confident that your future contributions will continue to inspire and lead the way forward.</p>
+                    <p style="color: #FFFFFF; font-size: 14px; margin: 10px 0;">Keep shining and pushing the boundaries of success!</p>
+                    <p style="color: #FFFFFF; font-size: 14px; margin: 10px 0; font-style: italic;">Best wishes from the Sales And Profit Inc. team,</p>
+                    <div style="position: absolute; top: 20px; left: 50%; transform: translateX(-50%);">
+                      <div style="width: 80px; height: 80px; background: #FFD700; border: 3px solid #26A69A; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px; color: #26A69A;">&#127942;</div> <!-- Trophy icon -->
+                    </div>
+                    <div style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);">
+
+                    </div>
+                  </div>
+                </div>
+          `;
+        });
+    }
+
+    async function downloadPDF() {
+      if (!currentPredictionData) {
+        Swal.fire("Error", "Please generate a prediction first.", "error");
+        return;
+      }
+
+      const element = document.getElementById("pdfPreview");
+
+      const originalDisplay = element.style.display;
+      element.style.display = "block";
+
+      Swal.fire({
+        title: "Generating PDF...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
+      try {
+        const canvas = await html2canvas(element, {
+          scale: 2,
+          useCORS: true,
+          windowWidth: element.scrollWidth,
+          windowHeight: element.scrollHeight,
+        });
+
+        const imgData = canvas.toDataURL("image/png");
+
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF("l", "mm", "a4");
+
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+
+        const padding = 10;
+        const availableWidth = pdfWidth - padding * 2;
+        const availableHeight = pdfHeight - padding * 2;
+
+        const imgWidth = canvas.width;
+        const imgHeight = canvas.height;
+
+        const ratio = Math.min(availableWidth / imgWidth, availableHeight / imgHeight);
+
+        const imgPDFWidth = imgWidth * ratio;
+        const imgPDFHeight = imgHeight * ratio;
+
+        const x = (pdfWidth - imgPDFWidth) / 2;
+        const y = padding;  // <-- changed from vertical center to padding at top
+
+        pdf.addImage(imgData, "PNG", x, y, imgPDFWidth, imgPDFHeight);
+
+        pdf.save("BI_Report.pdf");
+      } catch (err) {
+        Swal.fire("Error", "Failed to generate PDF: " + err.message, "error");
+      } finally {
+        element.style.display = originalDisplay;
+        Swal.close();
+      }
+    }
+
+
+    // Handle button click: set current data, update preview, then download
+    function handlePDF(inputEncoded, resEncoded) {
+      const input = JSON.parse(decodeURIComponent(inputEncoded));
+      const res = JSON.parse(decodeURIComponent(resEncoded));
+
+      currentPredictionData = { input, result: res };
+      updatePDFPreview(input, res);
+
+      // Delay to allow DOM update before generating PDF
+      setTimeout(() => {
+        downloadPDF();
+      }, 600);
+    }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

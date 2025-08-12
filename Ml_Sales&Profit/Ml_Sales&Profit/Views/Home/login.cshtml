@@ -1,0 +1,212 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+          integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer" />
+
+   
+    <!-- Your custom CSS -->
+    <link rel="stylesheet" href="~/css/login.css" asp-append-version="true" />
+
+    <title>Sign In & Sign Up</title>
+</head>
+<body>
+    <div class="container">
+        <!-- Login/Register Forms -->
+        <div class="forms-container">
+            <div class="signin-signup">
+                <!-- Sign In Form -->
+                <form action="#" class="sign-in-form">
+                    <h2 class="title">Sign In</h2>
+
+                    <div class="input-field">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" placeholder="Email" required />
+                    </div>
+
+                    <div class="input-field">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" placeholder="Password" required />
+                    </div>
+
+                    <input type="submit" value="Login" class="btn solid" />
+
+                  
+                </form>
+
+                <!-- Sign Up Form -->
+                <form action="#" class="sign-up-form">
+                    <h2 class="title">Sign up</h2>
+
+                    <div class="input-field">
+                        <i class="fas fa-user"></i>
+                        <input type="text" placeholder="Username" required />
+                    </div>
+                    <div class="input-field">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" placeholder="Email" required />
+                    </div>
+                    <div class="input-field">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" placeholder="Password" required />
+                    </div>
+                    <div class="input-field">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" placeholder="Confirm Password" id="confirmPassword" required />
+                    </div>
+
+                    <input type="submit" class="btn" value="Sign up" />
+                </form>
+
+            </div>
+        </div>
+
+        <!-- Panels -->
+        <div class="panels-container">
+            <!-- Left Panel -->
+            <div class="panel left-panel">
+                <div class="content">
+                    <h3>New here?</h3>
+                    <p>
+                        Welcome! Create your account to start exploring predictions and analytics.
+                    </p>
+                    <button class="btn transparent" id="sign-up-btn">Sign Up</button>
+                </div>
+                <img src="~/log.svg" class="image" alt="Sign up illustration" />
+            </div>
+
+            <!-- Right Panel -->
+            <div class="panel right-panel">
+                <div class="content">
+                    <h3>Already one of us?</h3>
+                    <p>
+                        Welcome back! Please sign in to continue to your dashboard.
+                    </p>
+                    <button class="btn transparent" id="sign-in-btn">Sign In</button>
+                </div>
+                <img src="~/register.svg" class="image" alt="Sign in illustration" />
+            </div>
+        </div>
+    </div>
+
+    <!-- Mode Toggle Script -->
+    <script>
+        const signInBtn = document.querySelector("#sign-in-btn");
+        const signUpBtn = document.querySelector("#sign-up-btn");
+        const container = document.querySelector(".container");
+
+        signUpBtn.addEventListener("click", () => {
+            container.classList.add("sign-up-mode");
+        });
+
+        signInBtn.addEventListener("click", () => {
+            container.classList.remove("sign-up-mode");
+        });
+    </script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+
+            // LOGIN
+            $('.sign-in-form').submit(function (e) {
+                e.preventDefault();
+                const email = $('.sign-in-form input[type="email"]').val().trim();
+                const password = $('.sign-in-form input[type="password"]').val().trim();
+
+                if (!email || !password) {
+                    Swal.fire('Error', 'Please fill all fields', 'error');
+                    return;
+                }
+
+                $.ajax({
+                    url: 'http://127.0.0.1:8000/users/login',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ email, password }),
+                    success: function (response) {
+                        const role = response.role;
+                        const id = response.id;
+                        const name = response.name;
+
+                        // Store in ASP.NET session via internal call (optional)
+                        $.ajax({
+                            url: '/Account/SetSession',
+                            method: 'POST',
+                            contentType: 'application/json',
+                            data: JSON.stringify({ role, id,name ,email})
+                        });
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Login successful',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+
+                        setTimeout(() => {
+                            if (role === 'Admin') {
+                                window.location.href = '/home/upload';
+                            } else {
+                                window.location.href = '/home/predictbyuser';
+                            }
+                        }, 1600);
+                    },
+                    error: function () {
+                        Swal.fire('Error', 'Invalid login credentials', 'error');
+                    }
+                });
+            });
+
+            // REGISTER
+            $('.sign-up-form').submit(function (e) {
+                e.preventDefault();
+
+                const name = $('.sign-up-form input[placeholder="Username"]').val().trim();
+                const email = $('.sign-up-form input[type="email"]').val().trim();
+                const password = $('.sign-up-form input[placeholder="Password"]').val().trim();
+                const confirmPassword = $('#confirmPassword').val().trim();
+
+                if (!name || !email || !password || !confirmPassword) {
+                    Swal.fire('Error', 'Please fill all fields', 'error');
+                    return;
+                }
+
+                if (password !== confirmPassword) {
+                    Swal.fire('Error', 'Passwords do not match', 'error');
+                    return;
+                }
+
+                $.ajax({
+                    url: 'http://127.0.0.1:8000/users/register',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ name, email, password }),
+                    success: function () {
+                        Swal.fire('Success', 'Registration successful. Please login.', 'success');
+                        $('.container').removeClass('sign-up-mode'); // Switch back to login
+                    },
+                    error: function () {
+                        Swal.fire('Error', 'Registration failed. Try again.', 'error');
+                    }
+                });
+            });
+        });
+    </script>
+
+
+</body>
+</html>

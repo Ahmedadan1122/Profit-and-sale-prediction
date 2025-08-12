@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v8.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v8.0": {
+      "Ml_Sales&Profit/1.0.0": {
+        "runtime": {
+          "Ml_Sales&Profit.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Ml_Sales&Profit/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

@@ -1,0 +1,246 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Predictive Insights</title>
+    <link rel="stylesheet" href="~/css/landing.css" asp-append-version="true" />
+</head>
+<nav class="navbar">
+    <div class="navbar-container">
+        <div class="logo">
+            <img src="~/logo.jpeg" alt="Logo" />
+        </div>
+        <ul class="nav-links">
+            <li><a href="#home">Home</a></li>
+            <li><a href="#about">About Us</a></li>
+            <li><a href="#services">Service</a></li>
+            @* <li><a href="#quote">Contact</a></li> *@
+        </ul>
+        <div class="nav-buttons">
+            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="login"><button class="signin-btn">Sign In</button></a>
+        </div>
+    </div>
+</nav>
+
+<body>
+
+    <section class="hero-section" id="home">
+        <div class="hero-text-slider">
+            <div class="hero-text active">
+                <h1>Unlock Future Sales with</h1>
+                <h2>Predictive Insights</h2>
+                <p>AI-powered predictions to optimize your revenue, forecast profits, and drive smart business decisions.</p>
+            </div>
+            <div class="hero-text">
+                <h1>Smarter Business with</h1>
+                <h2>AI Sales Forecasting</h2>
+                <p>Use AI to scale your business operations and improve decision-making with smart data analysis.</p>
+            </div>
+            <div class="hero-text">
+                <h1>Plan Ahead with</h1>
+                <h2>Accurate Projections</h2>
+                <p>Know what’s coming by forecasting profits and sales trends to stay ahead of competition.</p>
+            </div>
+            <div class="hero-buttons">
+                <button class="get-started">Get Started</button>
+                <button class="learn-more">Learn More</button>
+            </div>
+        </div>
+
+        <div class="hero-image">
+            <img src="~/mask group.png" alt="AI Business Person" />
+        </div>
+
+        <div class="arrows">
+            <div class="arrow-btn" id="prev">&#10094;</div>
+            <div class="arrow-btn" id="next">&#10095;</div>
+        </div>
+    </section>
+
+
+    <section class="services-section" id="services">
+        <div class="services-header">
+            <h4><span style="color: #fbbf24;">⭐</span> PROFESSIONAL SERVICE</h4>
+            <h2>Smarter Sales. Predictable Profits.</h2>
+        </div>
+        <div class="services-cards">
+            <div class="card">
+                <div class="icon">📈</div>
+                <h3>Sales Forecasting</h3>
+                <p>Use AI-powered tools to predict future sales trends and plan effectively for high-demand periods and market shifts.</p>
+            </div>
+            <div class="card">
+                <div class="icon">💰</div>
+                <h3>Profit Prediction</h3>
+                <p>Get detailed projections on future profits based on sales patterns, expenses, and customer behavior analysis.</p>
+            </div>
+            <div class="card">
+                <div class="icon">🔗</div>
+                <h3>Data Integration</h3>
+                <p>Seamlessly connect your sales, CRM, and accounting systems to generate accurate and holistic forecasts.</p>
+            </div>
+            <div class="card">
+                <div class="icon">🧠</div>
+                <h3>AI Insights & Recommendations</h3>
+                <p>Let intelligent algorithms guide your strategy with data-driven recommendations to maximize your revenue growth.</p>
+            </div>
+        </div>
+    </section>
+
+
+    <section class="about-section" id="about">
+        <div class="about-image">
+            <img src="~/image.png" alt="Presentation Image" />
+        </div>
+        <div class="about-text">
+            <h5>W h o &nbsp;&nbsp; W e &nbsp;&nbsp; A r e</h5>
+            <h2>About Us</h2>
+            <p>
+                We specialize in providing powerful sales and profit forecasting solutions using advanced AI analytics.
+                Whether you’re running a startup or scaling an enterprise, our platform equips you with the tools to
+                anticipate market trends, make data-driven decisions, and maximize profitability — all in just a few clicks.
+            </p>
+        </div>
+    </section>
+
+    <section class="process-section" id="process">
+        <div class="process-header">
+            <h4><span style="color: #fbbf24;">⭐</span> PROCESS</h4>
+            <h2>How Forecasting Works</h2>
+        </div>
+        <div class="process-steps">
+            <div class="step">
+                <div class="icon">📥</div>
+                <h3>Collect Business Data</h3>
+                <p>Import historical sales, expenses, and marketing data from your existing systems.</p>
+            </div>
+            <img src="~/arrow.png" alt="arrow" class="arrow" />
+            <div class="step">
+                <div class="icon">🧠</div>
+                <h3>AI Analysis</h3>
+                <p>Our intelligent algorithms process your data to uncover patterns and trends.</p>
+            </div>
+            <img src="~/arrow.png" alt="arrow" class="arrow" />
+            <div class="step">
+                <div class="icon">📈</div>
+                <h3>Sales & Profit Prediction</h3>
+                <p>Generate detailed, accurate forecasts to help you anticipate outcomes and plan strategically.</p>
+            </div>
+            <img src="~/arrow.png" alt="arrow" class="arrow" />
+            <div class="step">
+                <div class="icon">📊</div>
+                <h3>Insights & Reports</h3>
+                <p>Access custom dashboards and reports to visualize performance and refine your strategy.</p>
+            </div>
+        </div>
+    </section>
+
+@* 
+    <section class="quote-container" id="quote">
+        <div class="quote-banner">
+            <div class="quote-text">
+                <h2>Get Your Sales and Profit Forecast Today!</h2>
+                <p>Start forecasting your business growth with us.</p>
+            </div>
+            <div class="quote-contact">
+                <div class="call-info">
+                    <div class="call-icon">📞</div>
+                    <div>
+                        <span>Call Us</span>
+                        <p>+123 - 456 - 7890</p>
+                    </div>
+                </div>
+                <button class="contact-btn">Contact Us</button>
+            </div>
+        </div>
+
+        <form class="quote-form">
+            <div class="form-row">
+                <input type="text" placeholder="Business Name" />
+                <input type="text" placeholder="Phone Number" />
+            </div>
+            <div class="form-row">
+                <input type="email" placeholder="Email" />
+                <input type="text" placeholder="Business Location" />
+            </div>
+            <textarea placeholder="Additional Details on Sales & Profit Goals"></textarea>
+            <button type="submit">Request Forecast</button>
+        </form>
+    </section>
+ *@
+
+    <footer>
+        <div class="footer-container">
+            <div class="footer-section">
+                <img src="~/logo.jpeg" alt="Company Logo" class="footer-logo">
+                <p>Empowering businesses with data-driven sales and profit forecasting for sustainable growth.</p>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+          
+            <div class="footer-section">
+                <h4>Company</h4>
+                <ul>
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Sales & Profit Forecasting</a></li>
+                    <li><a href="#">Contact Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Get in touch</h4>
+                <p><i class="fas fa-phone"></i> +252616415344<br>+252617329530</p>
+                <p><i class="fas fa-envelope"></i> sales@For.com<br>www.for.com</p>
+                <p><i class="fas fa-map-marker-alt"></i> For Business Avenue, City, Country</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>Copyright © 2025 For | <a href="#">Terms and Conditions</a> | <a href="#">Privacy Policy</a></p>
+        </div>
+    </footer>
+
+
+    <script>
+        const texts = document.querySelectorAll('.hero-text');
+        const prev = document.getElementById('prev');
+        const next = document.getElementById('next');
+        let current = 0;
+
+        function showSlide(index) {
+          texts.forEach((text, i) => {
+            text.classList.remove('active');
+            if (i === index) text.classList.add('active');
+          });
+        }
+
+        function nextSlide() {
+          current = (current + 1) % texts.length;
+          showSlide(current);
+        }
+
+        function prevSlide() {
+          current = (current - 1 + texts.length) % texts.length;
+          showSlide(current);
+        }
+
+        next.addEventListener('click', nextSlide);
+        prev.addEventListener('click', prevSlide);
+
+        setInterval(nextSlide, 5000); // auto-change every 5 seconds
+    </script>
+
+</body>
+</html>
+

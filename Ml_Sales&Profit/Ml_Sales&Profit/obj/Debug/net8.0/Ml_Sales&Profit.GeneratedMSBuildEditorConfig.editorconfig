@@ -1,0 +1,77 @@
+is_global = true
+build_property.TargetFramework = net8.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = Ml_Sales_Profit
+build_property.RootNamespace = Ml_Sales_Profit
+build_property.ProjectDir = C:\Users\gorgo\Downloads\sales_prediction_final\Ml_Sales&Profit\Ml_Sales&Profit\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
+build_property.RazorLangVersion = 8.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = C:\Users\gorgo\Downloads\sales_prediction_final\Ml_Sales&Profit\Ml_Sales&Profit
+build_property._RazorSourceGeneratorDebug = 
+build_property.EffectiveAnalysisLevelStyle = 8.0
+build_property.EnableCodeStyleSeverity = 
+
+[C:/Users/gorgo/Downloads/sales_prediction_final/Ml_Sales&Profit/Ml_Sales&Profit/Views/Home/Allpredict.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxBbGxwcmVkaWN0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/gorgo/Downloads/sales_prediction_final/Ml_Sales&Profit/Ml_Sales&Profit/Views/Home/home.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxob21lLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/gorgo/Downloads/sales_prediction_final/Ml_Sales&Profit/Ml_Sales&Profit/Views/Home/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/gorgo/Downloads/sales_prediction_final/Ml_Sales&Profit/Ml_Sales&Profit/Views/Home/login.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxsb2dpbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/gorgo/Downloads/sales_prediction_final/Ml_Sales&Profit/Ml_Sales&Profit/Views/Home/predict.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxwcmVkaWN0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/gorgo/Downloads/sales_prediction_final/Ml_Sales&Profit/Ml_Sales&Profit/Views/Home/predictbyuser.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxwcmVkaWN0Ynl1c2VyLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/gorgo/Downloads/sales_prediction_final/Ml_Sales&Profit/Ml_Sales&Profit/Views/Home/roles.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxyb2xlcy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/gorgo/Downloads/sales_prediction_final/Ml_Sales&Profit/Ml_Sales&Profit/Views/Home/upload.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVx1cGxvYWQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/gorgo/Downloads/sales_prediction_final/Ml_Sales&Profit/Ml_Sales&Profit/Views/Home/users.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVx1c2Vycy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/gorgo/Downloads/sales_prediction_final/Ml_Sales&Profit/Ml_Sales&Profit/Views/Shared/Error.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXEVycm9yLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/gorgo/Downloads/sales_prediction_final/Ml_Sales&Profit/Ml_Sales&Profit/Views/Shared/_ValidationScriptsPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/gorgo/Downloads/sales_prediction_final/Ml_Sales&Profit/Ml_Sales&Profit/Views/_ViewImports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/gorgo/Downloads/sales_prediction_final/Ml_Sales&Profit/Ml_Sales&Profit/Views/_ViewStart.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdTdGFydC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/gorgo/Downloads/sales_prediction_final/Ml_Sales&Profit/Ml_Sales&Profit/Views/Shared/_Layout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = b-yqd1qlhsr6

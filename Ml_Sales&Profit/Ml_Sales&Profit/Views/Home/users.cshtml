@@ -1,0 +1,276 @@
+﻿
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+<!-- DataTables CSS & JS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+
+
+<div class="container py-4">
+    <div class="bg-white p-4 rounded shadow-sm">
+
+        <h3 class="mb-4">User Management</h3>
+        <button class="btn btn-primary mb-3" onclick="openAddModal()">Add User</button>
+
+    <div class="table-responsive">
+        <table id="userTable" class="table table-bordered bg-white">
+            <thead class="table-light">
+                <tr>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="userTableBody"></tbody>
+        </table>
+    </div>
+
+
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="userModal" tabindex="-1">
+        <div class="modal-dialog">
+            <form class="modal-content" id="userForm">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="userId">
+                    <div class="mb-2">
+                        <label>Username</label>
+                        <input type="text" class="form-control" id="username" required>
+                    </div>
+                    <div class="mb-2">
+                        <label>Email</label>
+                        <input type="email" class="form-control" id="email" required>
+                    </div>
+                    <div class="mb-2">
+                        <label>Role</label>
+                        <select class="form-select" id="roleId"></select>
+                    </div>
+                    <div class="mb-2">
+                        <label>Password</label>
+                        <input type="password" class="form-control" id="password">
+                    </div>
+                    <div class="mb-2">
+                        <label>Confirm Password</label>
+                        <input type="password" class="form-control" id="confirmPassword">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-success" type="submit">Save</button>
+                    <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    </div>
+
+    <script>
+          const base = "http://127.0.0.1:8000";
+          const userApi = base + "/admin/users/";
+          const create = base + "/users/register";
+          const roleApi = base + "/roles/roles/";
+          let modal;
+
+          $(document).ready(() => {
+            modal = new bootstrap.Modal(document.getElementById("userModal"));
+            loadUsers();
+            loadRoles();
+            $("#userForm").submit(async function (e) {
+            e.preventDefault();
+
+            const id = $("#userId").val();
+            const isEditing = Boolean(id);
+            const username = $("#username").val();
+            const email = $("#email").val();
+
+            // Only check password and confirm on ADD
+            if (!isEditing) {
+            const password = $("#password").val();
+            const confirm = $("#confirmPassword").val();
+
+            if (password.length < 8 || password !== confirm) {
+              Swal.fire({ icon: 'error', text: "Passwords must match and be at least 8 characters." });
+              return;
+            }
+            }
+
+            const url = isEditing
+            ? `${base}/admin/users/${id}` // PATCH
+            : `${base}/users/register`;  // POST
+
+            const method = isEditing ? "PATCH" : "POST";
+
+            const payload = isEditing
+            ? {
+              name: username,
+              email: email,
+              role: $("#roleId option:selected").text(),
+              is_blocked: 0
+              }
+            : {
+              name: username,
+              email: email,
+              password: $("#password").val()
+              };
+
+            $.ajax({
+            url,
+            method,
+            contentType: "application/json",
+            data: JSON.stringify(payload),
+            success: () => {
+              modal.hide();
+              toast("Saved successfully");
+              loadUsers();
+            },
+            error: () => toast("Failed to save", "error")
+            });
+          });
+        });
+
+          function loadRoles() {
+            $.get(roleApi, roles => {
+              $("#roleId").empty();
+              roles.forEach(role => {
+                $("#roleId").append(`<option value="${role.id}">${role.name}</option>`);
+              });
+            });
+          }
+    let dataTable;
+
+    function loadUsers() {
+      $.get(userApi, users => {
+        // Check if DataTable is initialized and destroy it
+        if ($.fn.DataTable.isDataTable("#userTable")) {
+          $("#userTable").DataTable().clear().destroy();
+        }
+
+        const body = $("#userTableBody");
+        body.empty();
+
+        users.forEach(user => {
+          const blocked = user.is_blocked
+            ? `<span class="badge bg-danger">Blocked</span>`
+            : `<span class="badge bg-success">Active</span>`;
+          body.append(`
+            <tr>
+              <td>${user.id}</td>
+              <td>${user.name}</td>
+              <td>${user.email}</td>
+              <td>${user.role}</td>
+              <td>${blocked}</td>
+              <td>
+                <button class="btn btn-sm btn-warning me-1" onclick="editUser(${user.id}, '${user.name}', '${user.email}', '${user.role}')">
+                  <i class="bi bi-pencil-square"></i>
+                </button>
+                <button class="btn btn-sm btn-danger me-1" onclick="deleteUser(${user.id})">
+                  <i class="bi bi-trash"></i>
+                </button>
+                <button class="btn btn-sm btn-secondary" onclick="toggleBlock(${user.id}, '${user.name}', '${user.email}', '${user.role}', ${!user.is_blocked})">
+                  <i class="bi ${user.is_blocked ? 'bi-unlock' : 'bi-lock'}"></i>
+                </button>
+              </td>
+            </tr>
+          `);
+        });
+
+        // Reinitialize DataTable
+        $("#userTable").DataTable();
+      });
+    }
+
+
+          function editUser(id, username, email, role) {
+          $("#userId").val(id);
+          $("#username").val(username);
+          $("#email").val(email);
+          $("#roleId option").filter(function() {
+            return $(this).text() === role;
+          }).prop('selected', true);
+
+          $(".modal-title").text("Edit User");
+
+          // Hide password fields
+          $("#password").closest('.mb-2').hide();
+          $("#confirmPassword").closest('.mb-2').hide();
+
+          // Show role field
+          $("#roleId").closest('.mb-2').show();
+
+          modal.show();
+        }
+
+
+          function deleteUser(id) {
+            Swal.fire({
+              title: 'Confirm delete?', icon: 'warning', showCancelButton: true,
+              confirmButtonText: 'Yes, delete'
+            }).then(result => {
+              if (result.isConfirmed) {
+                $.ajax({
+                  url: userApi + id, method: "DELETE",
+                  success: () => {
+                    toast("User deleted");
+                    loadUsers();
+                  }
+                });
+              }
+            });
+          }
+
+          function toggleBlock(id,username, email,role, status) {
+
+              const payload = {
+                name: username,
+                email: email,
+                role: role,
+                is_blocked: status
+              };
+              $.ajax({
+                url: userApi + id,
+                method: "PATCH",
+                contentType: "application/json",
+                data: JSON.stringify(payload),
+                success: () => {
+                  toast(status ? "User blocked" : "User unblocked");
+                  loadUsers();
+                },
+                error: () => toast("Block/unblock failed", "error")
+              });
+
+          }
+
+          function openAddModal() {
+          $("#userForm")[0].reset();
+          $("#userId").val("");
+          $(".modal-title").text("Add User");
+
+          // Show password fields
+          $("#password").closest('.mb-2').show();
+          $("#confirmPassword").closest('.mb-2').show();
+
+          // Hide role field
+          $("#roleId").closest('.mb-2').hide();
+
+          modal.show();
+        }
+
+
+          function toast(msg, icon = "success") {
+            Swal.fire({ toast: true, position: 'top-end', icon, title: msg, timer: 2000, showConfirmButton: false });
+          }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
